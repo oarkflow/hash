@@ -3,6 +3,7 @@ package hash
 import (
 	"github.com/oarkflow/hash/argon2id"
 	"github.com/oarkflow/hash/bcrypt"
+	"github.com/oarkflow/hash/cryptohash"
 	"github.com/oarkflow/hash/md5"
 	"github.com/oarkflow/hash/sha1"
 	"github.com/oarkflow/hash/sha256"
@@ -10,7 +11,7 @@ import (
 )
 
 func Make(password string, algo ...string) (hash string, err error) {
-	algorithm := "argon2id"
+	algorithm := "cryptohash"
 	if len(algo) > 0 {
 		algorithm = algo[0]
 	}
@@ -25,13 +26,15 @@ func Make(password string, algo ...string) (hash string, err error) {
 		return sha256.CreateHash(password), nil
 	case "sha512":
 		return sha512.CreateHash(password), nil
-	default:
+	case "argon2id":
 		return argon2id.CreateHash(password)
+	default:
+		return cryptohash.CreateHash(password)
 	}
 }
 
 func Match(password string, hash string, algo ...string) (match bool, err error) {
-	algorithm := "argon2id"
+	algorithm := "cryptohash"
 	if len(algo) > 0 {
 		algorithm = algo[0]
 	}
@@ -46,7 +49,9 @@ func Match(password string, hash string, algo ...string) (match bool, err error)
 		return sha256.ComparePasswordAndHash(password, hash), nil
 	case "sha512":
 		return sha512.ComparePasswordAndHash(password, hash), nil
-	default:
+	case "argon2id":
 		return argon2id.ComparePasswordAndHash(password, hash)
+	default:
+		return cryptohash.ComparePasswordAndHash(password, hash)
 	}
 }
